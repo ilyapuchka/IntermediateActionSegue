@@ -127,6 +127,14 @@ public class IntermediateActionSegue: UIStoryboardSegue {
     private func _intermediateViewController() -> UIViewController? {
         return intermediateViewController ?? intermediateActionPresentationDelegate?.intermediateViewControllerForSegue(self)
     }
+    
+    private var completionHandler: ((Bool, AnyObject?) -> ())?
+    
+    public init(identifier: String?, sourceViewController: UIViewController, intermediateViewController: UIViewController? = nil, completion: (Bool, AnyObject?)->()) {
+        self.completionHandler = completion
+        self.intermediateViewController = intermediateViewController
+        super.init(identifier: identifier, source: sourceViewController, destination: sourceViewController)
+    }
 
     override public final func perform() {
         
@@ -142,16 +150,18 @@ public class IntermediateActionSegue: UIStoryboardSegue {
                     sourceViewController.showViewController(intermediateViewController, sender: nil)
                 }
                 else {
-                    switch presentationStyle {
-                    case .Modal:
-                        intermediateViewController.modalPresentationStyle = .FullScreen
-                        
-                    case .Popover:
-                        intermediateViewController.modalPresentationStyle = .Popover
-                        
-                    case .Custom:
-                        intermediateViewController.modalPresentationStyle = .Custom
-                    default: return
+                    if intermediateViewController.modalPresentationStyle == .None {
+                        switch presentationStyle {
+                        case .Modal:
+                            intermediateViewController.modalPresentationStyle = .FullScreen
+                            
+                        case .Popover:
+                            intermediateViewController.modalPresentationStyle = .Popover
+                            
+                        case .Custom:
+                            intermediateViewController.modalPresentationStyle = .Custom
+                        default: return
+                        }
                     }
                     
                     intermediateActionPresentationDelegate?.willPresentIntermediateViewController(intermediateViewController, segue: self)
@@ -165,6 +175,12 @@ public class IntermediateActionSegue: UIStoryboardSegue {
     
     ///Should be called to indicate that intermediate view controller completed its task.
     public final func intermediateViewControllerCompleted(viewController: UIViewController, success: Bool, completionData: AnyObject?) {
+        if let completionHandler = completionHandler {
+            completionHandler(success, completionData)
+            abort()
+            return
+        }
+        
         guard let delegate = intermediateActionPresentationDelegate else { return }
         
         let shouldComplete = delegate.intermediateViewControllerCompleted(viewController, success: success, completionData: completionData)
@@ -174,13 +190,8 @@ public class IntermediateActionSegue: UIStoryboardSegue {
         if let _ = sourceViewController.presentedViewController where sourceViewController.presentedViewController !== initialIntermediateController {
             sourceViewController.dismissViewControllerAnimated(true, completion: nil)
         }
-
-        if shouldComplete {
-            complete()
-        }
-        else {
-            abort()
-        }
+        
+        shouldComplete ? complete() : abort()
     }
     
     ///Completes segue dismissing initial intermediate view and presenting destination view controller
@@ -189,9 +200,7 @@ public class IntermediateActionSegue: UIStoryboardSegue {
         if let presentingController = initialIntermediateController?.presentingViewController {
             presentingController.dismissViewControllerAnimated(true) {
                 self.sourceViewController.showViewController(self.destinationViewController, sender: self.sourceViewController)
-                
-                self.initialIntermediateController?.intermediateActionSegue = nil
-                self.initialIntermediateController = nil
+                self.tearDown()
             }
         }
             // or navigation
@@ -205,8 +214,7 @@ public class IntermediateActionSegue: UIStoryboardSegue {
                 let range = Range(start: index + 1, end: count)
                 navigationController.viewControllers.removeRange(range)
                 
-                self.initialIntermediateController?.intermediateActionSegue = nil
-                self.initialIntermediateController = nil
+                self.tearDown()
         }
     }
     
@@ -221,11 +229,18 @@ public class IntermediateActionSegue: UIStoryboardSegue {
                 //this does the same but without warning
                 let count = navigationController.viewControllers.count
                 let range = Range(start: index + 1, end: count)
-                navigationController.viewControllers.removeRange(range)
+                var viewControllers = navigationController.viewControllers
+                viewControllers.removeRange(range)
+                navigationController.setViewControllers(viewControllers, animated: true)
         }
         
+        tearDown()
+    }
+    
+    func tearDown() {
         self.initialIntermediateController?.intermediateActionSegue = nil
         self.initialIntermediateController = nil
+        self.completionHandler = nil
     }
 
 }

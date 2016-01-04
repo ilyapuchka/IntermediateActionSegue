@@ -27,7 +27,23 @@ class ViewController: UIViewController, UIPopoverPresentationControllerDelegate 
     
     @IBOutlet var intermediateButton: UIButton!
     @IBOutlet var intermediateStoryButton: UIButton!
-
+    @IBOutlet var intermediateActionButton: UIButton!
+    
+    @IBAction
+    func intermediateActionButtonTapped(sender: UIButton) {
+        withAction {
+            sender.setTitle("Action Succeed", forState: .Normal)
+        }
+    }
+    
+    func withAction(block: ()->()) {
+        let segue = IntermediateActionSegue(identifier: "button", sourceViewController: self, intermediateViewController: storyboard?.instantiateViewControllerWithIdentifier("Intermediate")) { (success, _) in
+            if success { block() }
+        }
+        segue.intermediateViewControllerPresentationStyle = .Modal
+        segue.intermediateViewController!.modalPresentationStyle = .FormSheet
+        segue.perform()
+    }
 }
 
 let IntermediateViewSegueId = "IntermediateView"
@@ -52,7 +68,7 @@ extension ViewController: IntermediateActionPresentationDelegate {
         if segue.identifier == IntermediateStorySegueId {
             return .Popover
         }
-        return .Popover
+        return .Show
     }
 
     func willPresentIntermediateViewController(intermediateViewController: UIViewController, segue: IntermediateActionSegue) {
@@ -66,6 +82,9 @@ extension ViewController: IntermediateActionPresentationDelegate {
             }
             else if segue.identifier == IntermediateViewSegueId {
                 intermediateViewController.popoverPresentationController?.sourceRect = self.intermediateButton.frame
+            }
+            else {
+                intermediateViewController.popoverPresentationController?.sourceRect = self.intermediateActionButton.frame
             }
         
         case .Custom:

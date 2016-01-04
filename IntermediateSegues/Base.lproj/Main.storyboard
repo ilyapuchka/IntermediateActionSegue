@@ -18,24 +18,31 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="nCa-92-EZX">
-                                <rect key="frame" x="266" y="199" width="50" height="30"/>
+                                <rect key="frame" x="275" y="199" width="50" height="30"/>
                                 <state key="normal" title="Normal"/>
                                 <connections>
                                     <segue destination="sB9-wO-EG5" kind="show" identifier="normal" id="qfp-eh-DWA"/>
                                 </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="JZU-a9-4Kz">
-                                <rect key="frame" x="229" y="283" width="124" height="30"/>
+                                <rect key="frame" x="238" y="283" width="124" height="30"/>
                                 <state key="normal" title="Intermediate View"/>
                                 <connections>
                                     <segue destination="sB9-wO-EG5" kind="custom" identifier="IntermediateView" customClass="IntermediateActionSegue" customModule="IntermediateSegues" customModuleProvider="target" id="Z6H-KV-gAN"/>
                                 </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="TXJ-RC-PwK">
-                                <rect key="frame" x="228" y="371" width="127" height="30"/>
+                                <rect key="frame" x="237" y="371" width="127" height="30"/>
                                 <state key="normal" title="Intermediate Story"/>
                                 <connections>
                                     <segue destination="sB9-wO-EG5" kind="custom" identifier="IntermediateStory" customClass="IntermediateActionSegue" customModule="IntermediateSegues" customModuleProvider="target" id="S3v-ak-2Vg"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="6cc-Za-5F0">
+                                <rect key="frame" x="233" y="435" width="134" height="30"/>
+                                <state key="normal" title="Intermediate Action"/>
+                                <connections>
+                                    <action selector="intermediateActionButtonTapped:" destination="BYZ-38-t0r" eventType="touchUpInside" id="OkF-TF-pEv"/>
                                 </connections>
                             </button>
                         </subviews>
@@ -43,14 +50,17 @@
                         <constraints>
                             <constraint firstItem="JZU-a9-4Kz" firstAttribute="centerY" secondItem="8bC-Xf-vdC" secondAttribute="centerY" constant="-2" id="2rk-lN-gGD"/>
                             <constraint firstItem="TXJ-RC-PwK" firstAttribute="centerY" secondItem="8bC-Xf-vdC" secondAttribute="centerY" constant="86" id="7im-3i-0Ut"/>
-                            <constraint firstItem="nCa-92-EZX" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" constant="-9" id="ENX-U9-F9G"/>
-                            <constraint firstItem="TXJ-RC-PwK" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" constant="-9" id="Q68-E2-4um"/>
-                            <constraint firstItem="JZU-a9-4Kz" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" constant="-9" id="fDd-My-b5L"/>
+                            <constraint firstItem="6cc-Za-5F0" firstAttribute="centerY" secondItem="8bC-Xf-vdC" secondAttribute="centerY" constant="150" id="BXs-Tv-R3s"/>
+                            <constraint firstItem="nCa-92-EZX" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="ENX-U9-F9G"/>
+                            <constraint firstItem="TXJ-RC-PwK" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="Q68-E2-4um"/>
+                            <constraint firstItem="6cc-Za-5F0" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="bEL-UJ-sXL"/>
+                            <constraint firstItem="JZU-a9-4Kz" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="fDd-My-b5L"/>
                             <constraint firstItem="nCa-92-EZX" firstAttribute="centerY" secondItem="8bC-Xf-vdC" secondAttribute="centerY" constant="-86" id="zVd-rm-CWn"/>
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" id="Kji-o6-bW5"/>
                     <connections>
+                        <outlet property="intermediateActionButton" destination="6cc-Za-5F0" id="OFM-aU-Jgs"/>
                         <outlet property="intermediateButton" destination="JZU-a9-4Kz" id="i45-Nn-Zgj"/>
                         <outlet property="intermediateStoryButton" destination="TXJ-RC-PwK" id="9g7-Rt-XGc"/>
                     </connections>
