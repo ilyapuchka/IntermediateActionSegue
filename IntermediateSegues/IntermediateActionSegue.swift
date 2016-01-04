@@ -52,7 +52,7 @@ extension IntermediateActionPresentationDelegate {
     }
     
     public func intermediateViewControllerCompleted(intermediateViewController: UIViewController, success: Bool, completionData: AnyObject?) -> Bool {
-        return true
+        return success
     }
     
     public func willPresentIntermediateViewController(intermediateViewController: UIViewController, segue: IntermediateActionSegue) { }
@@ -108,44 +108,36 @@ public class IntermediateActionSegue: UIStoryboardSegue {
         }
     }
     
-    private var _presentationStyle: IntermediateActionSeguePresentationStyle?
-    
-    ///You can set presentation style on segue instead of using delegate.
-    ///If it's set then delegate will be not called
-    ///By default returns .Show
-    public final var presentationStyle: IntermediateActionSeguePresentationStyle {
-        get {
-            return _presentationStyle ?? intermediateActionPresentationDelegate?.intermediateViewControllerPresentationStyleForSegue(self) ?? .Show
-        }
-        set {
-            _presentationStyle = newValue
-        }
-    }
-    
-    private var _instantiateInitialIntermediateViewController: (IntermediateActionSegue -> UIViewController?)?
-    
-    ///You can set this block to create initial intermediate view controller on segue instead of using delegate.
-    ///If it's set then it will be used to create intermediate view controller and delegate will be not called for that.
-    public final var instantiateInitialIntermediateViewController: (IntermediateActionSegue -> UIViewController?)? {
-        get {
-            return _instantiateInitialIntermediateViewController ?? intermediateActionPresentationDelegate?.intermediateViewControllerForSegue
-        }
-        set {
-            _instantiateInitialIntermediateViewController = newValue
-        }
-    }
-    
+    ///Reference to initial view controller presented for intermediate action
     public private(set) final var initialIntermediateController: UIViewController?
+    
+    ///View controller to present for intermediate action. If nil then segue will ask its delegate to provide it.
+    public var intermediateViewController: UIViewController?
+    
+    ///Presentation style for intermediate view controller. If nil then segue will ask its delegate to provide it.
+    ///If not provided will use `Show`
+    public var intermediateViewControllerPresentationStyle: IntermediateActionSeguePresentationStyle?
+    
+    private func _presentationStyle() -> IntermediateActionSeguePresentationStyle {
+        return intermediateViewControllerPresentationStyle ??
+            intermediateActionPresentationDelegate?.intermediateViewControllerPresentationStyleForSegue(self) ??
+            .Show
+    }
+    
+    private func _intermediateViewController() -> UIViewController? {
+        return intermediateViewController ?? intermediateActionPresentationDelegate?.intermediateViewControllerForSegue(self)
+    }
 
     override public final func perform() {
         
-        if let intermediateViewController = instantiateInitialIntermediateViewController?(self) {
+        if let intermediateViewController = _intermediateViewController() {
                 
                 self.initialIntermediateController = intermediateViewController
                 intermediateViewController.intermediateActionSegue = self
                 intermediateViewController.storyboard?.intermediateActionSegue = self
                 
-                let presentationStyle = self.presentationStyle
+                let presentationStyle = _presentationStyle()
+            
                 if case presentationStyle = IntermediateActionSeguePresentationStyle.Show {
                     sourceViewController.showViewController(intermediateViewController, sender: nil)
                 }
@@ -178,7 +170,7 @@ public class IntermediateActionSegue: UIStoryboardSegue {
         let shouldComplete = delegate.intermediateViewControllerCompleted(viewController, success: success, completionData: completionData)
 
         //If there is a modal presentation somewhere in the line we first dismiss it.
-        //But not if it's how inital controller was presented becasue we will handle it in complete/abort.
+        //But not if it's how inital controller was presented because we will handle it in complete/abort.
         if let _ = sourceViewController.presentedViewController where sourceViewController.presentedViewController !== initialIntermediateController {
             sourceViewController.dismissViewControllerAnimated(true, completion: nil)
         }
